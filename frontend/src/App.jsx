@@ -5,11 +5,11 @@ import "./styles/custom.css";
 
 const App = () => {
   return (
-    <div className="app-container">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="">
+      <main className="flex-1 flex">
         <AppRoutes />
-      </div>
+      </main>
     </div>
   );
 };

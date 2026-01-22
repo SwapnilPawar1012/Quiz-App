@@ -2,15 +2,18 @@ import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <nav className="navbar px-8 py-4 bg-gray-700 text-white flex gap-5">
-      <Link to="/" className="hover:text-blue-400 text-xl font-bold">
+    <nav className="navbar px-8 py-4 bg-indigo-500 text-white flex gap-8">
+      <Link to="/" className="hover:text-indigo-900 text-xl font-bold">
         Home
       </Link>
-      <Link to="/create" className="hover:text-blue-400 text-xl font-bold">
-        Create Quiz
+      <Link to="/admin" className="hover:text-indigo-900 text-xl font-bold">
+        Admin
       </Link>
-      <Link to="/my-videos" className="hover:text-blue-400 text-xl font-bold">
-        My Videos
+      <Link to="/create" className="hover:text-indigo-900 text-xl font-bold">
+        Quiz
+      </Link>
+      <Link to="/videos" className="hover:text-indigo-900 text-xl font-bold">
+        Videos
       </Link>
     </nav>
   );
