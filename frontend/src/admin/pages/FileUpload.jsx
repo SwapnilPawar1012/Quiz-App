@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
-import AdminPanel from "./AdminPanel";
+import AdminLayout from "../components/layout/AdminLayout";
 
 const FileUpload = () => {
   const [file, setFile] = useState(null);
@@ -73,7 +73,7 @@ const FileUpload = () => {
 
   return (
     <>
-      <AdminPanel />
+      <AdminLayout />
       <div className="flex justify-center w-full pt-6 bg-indigo-100">
         <div className="max-w-4xl space-y-4 p-5  text-black flex flex-col gap-4">
           <h2 className="text-2xl font-bold">Upload File (CSV or Excel)</h2>

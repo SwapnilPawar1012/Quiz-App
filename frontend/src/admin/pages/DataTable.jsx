@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import AdminPanel from "./AdminPanel";
+import AdminLayout from "../components/layout/AdminLayout";
+import { useNavigate } from "react-router-dom";
 
 const DataTable = () => {
   const [questions, setQuestions] = useState([]);
@@ -10,6 +11,8 @@ const DataTable = () => {
     subtopic: "",
     search: "",
   });
+
+  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -53,7 +56,7 @@ const DataTable = () => {
 
   return (
     <>
-      <AdminPanel />
+      <AdminLayout />
       <div className="flex flex-col w-full bg-indigo-100 text-black">
         <div className="w-full space-y-4 p-5 flex flex-col gap-4">
           <h2 className="text-2xl font-bold mb-4">Question Database</h2>
@@ -121,6 +124,7 @@ const DataTable = () => {
                   <th>Topic</th>
                   <th>Subtopic</th>
                   <th>Question</th>
+                  <th>Media</th> {/* Added Media Column */}
                   <th>Options</th>
                   <th>Correct</th>
                   <th>Solution</th>
@@ -146,7 +150,29 @@ const DataTable = () => {
                     <td>{q.subject || "unknown"}</td>
                     <td>{q.topic || ""}</td>
                     <td>{q.subtopic || ""}</td>
+
                     <td style={{ maxWidth: 300 }}>{q.questionText}</td>
+
+                    {/* Media Cell */}
+                    <td>
+                      {q.media ? (
+                        q.media.type === "video" ? (
+                          <video
+                            src={`http://localhost:5000${q.media.url}`}
+                            controls
+                            style={{ maxWidth: "50px" }}
+                          />
+                        ) : (
+                          <img
+                            src={`http://localhost:5000${q.media.url}`}
+                            alt="question media"
+                            style={{ maxWidth: "50px" }}
+                          />
+                        )
+                      ) : (
+                        <span>-</span>
+                      )}
+                    </td>
 
                     <td>
                       <ol type="A">
@@ -160,9 +186,14 @@ const DataTable = () => {
                     <td>{q.solutionText}</td>
                     <td style={{ maxWidth: 300 }}>{q.solutionExplanation}</td>
                     <td>{new Date(q.createdAt).toLocaleDateString()}</td>
-
                     <td>
-                      <button>Edit</button>
+                      <button
+                        onClick={() =>
+                          navigate(`/admin/edit-question/${q._id}`)
+                        }
+                      >
+                        Edit
+                      </button>
                       <button onClick={() => handleDelete(q._id)}>
                         Delete
                       </button>

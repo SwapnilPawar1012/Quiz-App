@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const AdminPanel = () => {
+const AdminLayout = () => {
   return (
     <aside className="w-64 bg-indigo-400 shrink-0">
       <ul className="flex flex-col">
@@ -34,4 +34,4 @@ const AdminPanel = () => {
   );
 };
 
-export default AdminPanel;
+export default AdminLayout;

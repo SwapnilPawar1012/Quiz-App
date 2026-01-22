@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import AdminPanel from "./AdminPanel";
+import { useState, useEffect } from "react";
+import AdminLayout from "../components/layout/AdminLayout";
 
 const QuestionUpload = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +14,8 @@ const QuestionUpload = () => {
     solutionExplanation: "No Explanation!",
   });
 
+  const [mediaFile, setMediaFile] = useState(null);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -21,21 +23,47 @@ const QuestionUpload = () => {
   const handleOptionChange = (index, value) => {
     const updatedOptions = [...formData.options];
     updatedOptions[index] = value;
-    setFormData({ ...formData, options: updatedOptions });
+    setFormData((prev) => ({
+      ...prev,
+      options: updatedOptions,
+      solutionText:
+        index === prev.correctOptionIndex ? value : prev.solutionText,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Sending data:", formData);
+    const form = new FormData();
+
+    form.append("data", JSON.stringify(formData));
+
+    if (mediaFile) {
+      form.append("media", mediaFile);
+    }
+
+    console.log("Sending data:", formData, mediaFile);
 
     // Later: send to backend
-    // await fetch("/api/admin/questions", { ... })
+    // await fetch("http://localhost:5000/api/admin/questions", {
+    //   method: "POST",
+    //   body: form,
+    // });
   };
+
+  useEffect(() => {
+    return () => {
+      if (mediaFile) {
+        // URL.revokeObjectURL(mediaFile);
+        const previewUrl = URL.createObjectURL(mediaFile);
+        console.log(previewUrl);
+      }
+    };
+  }, [mediaFile]);
 
   return (
     <>
-      <AdminPanel />
+      <AdminLayout />
       <div className="flex justify-center w-full pt-6 bg-indigo-100">
         <form
           onSubmit={handleSubmit}
@@ -91,6 +119,45 @@ const QuestionUpload = () => {
             className="input w-full h-9 border rounded text-black py-1 px-2"
             onChange={handleChange}
           />
+
+          <>
+            {/* Optional Image / Video */}
+            <input
+              type="file"
+              accept="image/*,video/*"
+              className="input w-fit border rounded text-black py-1 px-2"
+              onChange={(e) => {
+                const file = e.target.files[0];
+
+                if (!file) return;
+
+                if (file.size > 10 * 1024 * 1024) {
+                  alert("File size must be less than 10MB");
+                  return;
+                }
+
+                setMediaFile(file);
+              }}
+            />
+            {mediaFile && (
+              <div>
+                {mediaFile.type.startsWith("image") ? (
+                  <img
+                    src={URL.createObjectURL(mediaFile)}
+                    alt="preview"
+                    style={{ maxWidth: "150px" }}
+                  />
+                ) : (
+                  <video
+                    src={URL.createObjectURL(mediaFile)}
+                    controls
+                    style={{ maxWidth: "150px" }}
+                  />
+                )}
+              </div>
+            )}
+          </>
+
           <div className="flex justify-between">
             <div className="flex justify-between w-6/12 gap-4 flex-wrap">
               {formData.options.map((opt, index) => (
@@ -107,8 +174,16 @@ const QuestionUpload = () => {
             <select
               name="correctOptionIndex"
               required
+              value={formData.correctOptionIndex}
               className="input border rounded text-black py-1 px-2"
-              onChange={handleChange}
+              onChange={(e) => {
+                const index = Number(e.target.value);
+                setFormData((prev) => ({
+                  ...prev,
+                  correctOptionIndex: index,
+                  solutionText: prev.options[index] || "",
+                }));
+              }}
             >
               <option value={0}>Correct Option: 1</option>
               <option value={1}>Correct Option: 2</option>
@@ -118,10 +193,9 @@ const QuestionUpload = () => {
 
             <input
               name="solutionText"
-              required
-              placeholder="Solution text"
+              value={formData.options[formData.correctOptionIndex] || "-"}
+              readOnly
               className="input border rounded text-black py-1 px-2"
-              onChange={handleChange}
             />
           </div>
 
