@@ -1,0 +1,11 @@
+.quiz-container {
+    background: linear-gradient(135deg, #1e3a8a, #9333ea);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.glass-card {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
