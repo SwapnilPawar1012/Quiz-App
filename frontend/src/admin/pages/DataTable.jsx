@@ -10,6 +10,7 @@ const DataTable = () => {
     topic: "",
     subtopic: "",
     search: "",
+    isUsed: "",
   });
 
   const navigate = useNavigate();
@@ -20,38 +21,66 @@ const DataTable = () => {
   const totalPages = Math.ceil(total / limit);
 
   const fetchQuestions = async () => {
+    // Filter out empty strings so they don't clog the URL
+    const activeFilters = {};
+    for (const key in filters) {
+      if (filters[key]) activeFilters[key] = filters[key];
+    }
+
     const params = new URLSearchParams({
-      ...filters,
+      ...activeFilters,
       page,
       limit,
     });
 
-    const res = await fetch(
-      `http://localhost:5000/api/admin/questions?${params}`,
-    );
-    const data = await res.json();
-
-    setQuestions(data.questions || []);
-    setTotal(data.total || 0);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/admin/questions?${params}`,
+      );
+      const data = await res.json();
+      setQuestions(data.questions || []);
+      setTotal(data.total || 0);
+    } catch (err) {
+      console.error("Failed to fetch questions", err);
+    }
   };
 
   useEffect(() => {
-    alert("Fetching questions!");
-    // fetchQuestions();
+    fetchQuestions();
+    // alert("Fetching questions!");
   }, [page]);
 
   const handleChange = (e) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Delete this question?")) return;
-
-    await fetch(`http://localhost:5000/api/admin/questions/${id}`, {
-      method: "DELETE",
-    });
-
+  // ✅ New function to trigger search when "Apply" is clicked
+  const handleApply = () => {
+    setPage(1); // Reset to page 1 on new filter
     fetchQuestions();
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this question? This cannot be undone.")) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/admin/questions/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (res.ok) {
+        alert("Deleted Successfully");
+        fetchQuestions();
+      } else {
+        alert("Failed to delete");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error deleting question");
+    }
   };
 
   return (
@@ -61,8 +90,8 @@ const DataTable = () => {
         <div className="w-full space-y-4 p-5 flex flex-col gap-4">
           <h2 className="text-2xl font-bold mb-4">Question Database</h2>
 
-          {/* Filters */}
-          <div className="flex gap-2 mb-4 justify-evenly">
+          {/* --- FILTERS --- */}
+          <div className="flex gap-2 mb-4 justify-between flex-wrap bg-white p-3 rounded shadow-sm">
             <select
               name="language"
               value={filters.language}
@@ -74,9 +103,21 @@ const DataTable = () => {
               <option value="Marathi">Marathi</option>
             </select>
 
+            <select
+              name="isUsed"
+              value={filters.isUsed}
+              className="input border rounded text-black py-1 px-2"
+              onChange={handleChange}
+            >
+              <option value="">All Status</option>
+              <option value="true">Used</option>
+              <option value="false">Unused</option>
+            </select>
+
             <input
               name="subject"
               placeholder="Subject"
+              value={filters.subject}
               className="input border rounded text-black py-1 px-2"
               onChange={handleChange}
             />
@@ -84,117 +125,112 @@ const DataTable = () => {
             <input
               name="topic"
               placeholder="Topic"
-              className="input border rounded text-black py-1 px-2"
-              onChange={handleChange}
-            />
-
-            <input
-              name="subtopic"
-              placeholder="Subtopic"
+              value={filters.topic}
               className="input border rounded text-black py-1 px-2"
               onChange={handleChange}
             />
 
             <input
               name="search"
-              placeholder="Search question"
-              className="input border rounded text-black py-1 px-2"
+              placeholder="Search text..."
+              value={filters.search}
+              className="input border rounded text-black py-1 px-2 w-64"
               onChange={handleChange}
             />
 
             <button
-              className="bg-indigo-600 text-white px-6 py-2 rounded"
-              onClick={() => {
-                setPage(1);
-                fetchQuestions();
-              }}
+              className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
+              onClick={handleApply}
             >
               Apply
             </button>
           </div>
 
-          {/* Table */}
-          <div style={{ overflowX: "auto" }}>
-            <table border="1" cellPadding="8" width="100%">
-              <thead>
+          {/* --- TABLE --- */}
+          <div
+            style={{ overflowX: "auto" }}
+            className="bg-white rounded shadow"
+          >
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-indigo-50 text-indigo-900">
                 <tr>
-                  <th>#</th>
-                  <th>Language</th>
-                  <th>Subject</th>
-                  <th>Topic</th>
-                  <th>Subtopic</th>
-                  <th>Question</th>
-                  <th>Media</th> {/* Added Media Column */}
-                  <th>Options</th>
-                  <th>Correct</th>
-                  <th>Solution</th>
-                  <th>Explanation</th>
-                  <th>Created</th>
-                  <th>Actions</th>
+                  <th className="p-3 border-b">#</th>
+                  <th className="p-3 border-b">Used?</th>
+                  <th className="p-3 border-b">Lang</th>
+                  <th className="p-3 border-b">Subject</th>
+                  <th className="p-3 border-b">Topic</th>
+                  <th className="p-3 border-b w-1/4">Question</th>
+                  <th className="p-3 border-b">Media</th>
+                  <th className="p-3 border-b">Created</th>
+                  <th className="p-3 border-b">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {questions.length === 0 && (
                   <tr>
-                    <td colSpan="12" align="center">
-                      No questions found
+                    <td colSpan="9" className="p-5 text-center text-gray-500">
+                      No questions found matching your filters.
                     </td>
                   </tr>
                 )}
 
                 {questions.map((q, index) => (
-                  <tr key={q._id}>
-                    <td>{(page - 1) * limit + index + 1}</td>
-                    <td>{q.language}</td>
-                    <td>{q.subject || "unknown"}</td>
-                    <td>{q.topic || ""}</td>
-                    <td>{q.subtopic || ""}</td>
+                  <tr key={q._id} className="hover:bg-gray-50 border-b">
+                    <td className="p-3">{(page - 1) * limit + index + 1}</td>
 
-                    <td style={{ maxWidth: 300 }}>{q.questionText}</td>
+                    <td className="p-3">
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-bold ${
+                          q.isUsed
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {q.isUsed ? "USED" : "UNUSED"}
+                      </span>
+                    </td>
 
-                    {/* Media Cell */}
-                    <td>
-                      {q.media ? (
-                        q.media.type === "video" ? (
-                          <video
-                            src={`http://localhost:5000${q.media.url}`}
-                            controls
-                            style={{ maxWidth: "50px" }}
-                          />
-                        ) : (
-                          <img
-                            src={`http://localhost:5000${q.media.url}`}
-                            alt="question media"
-                            style={{ maxWidth: "50px" }}
-                          />
-                        )
+                    <td className="p-3">{q.language}</td>
+                    <td className="p-3">{q.subject}</td>
+                    <td className="p-3">{q.topic}</td>
+
+                    <td className="p-3 text-sm">
+                      {q.questionText.substring(0, 80)}...
+                    </td>
+
+                    <td className="p-3">
+                      {q.mediaUrl ? (
+                        <a
+                          href={`http://localhost:5000${q.mediaUrl}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-blue-500 underline text-xs"
+                        >
+                          View Media
+                        </a>
                       ) : (
-                        <span>-</span>
+                        <span className="text-gray-400 text-xs">-</span>
                       )}
                     </td>
 
-                    <td>
-                      <ol type="A">
-                        {q.options.map((opt, i) => (
-                          <li key={i}>{opt}</li>
-                        ))}
-                      </ol>
+                    <td className="p-3 text-xs">
+                      {new Date(q.createdAt).toLocaleDateString()}
                     </td>
 
-                    <td>Option {q.correctOptionIndex + 1}</td>
-                    <td>{q.solutionText}</td>
-                    <td style={{ maxWidth: 300 }}>{q.solutionExplanation}</td>
-                    <td>{new Date(q.createdAt).toLocaleDateString()}</td>
-                    <td>
+                    <td className="p-3 flex gap-2">
                       <button
+                        className="text-blue-600 hover:text-blue-800 text-sm"
                         onClick={() =>
                           navigate(`/admin/edit-question/${q._id}`)
                         }
                       >
                         Edit
                       </button>
-                      <button onClick={() => handleDelete(q._id)}>
+                      <button
+                        className="text-red-600 hover:text-red-800 text-sm"
+                        onClick={() => handleDelete(q._id)}
+                      >
                         Delete
                       </button>
                     </td>
@@ -205,23 +241,23 @@ const DataTable = () => {
           </div>
         </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center items-center gap-8 mt-6">
+        {/* --- PAGINATION --- */}
+        <div className="flex justify-center items-center gap-4 py-6">
           <button
             disabled={page === 1}
-            className="hover:text-blue-800"
+            className="px-4 py-2 bg-white border rounded disabled:opacity-50"
             onClick={() => setPage(page - 1)}
           >
-            Prev
+            Previous
           </button>
 
-          <span>
+          <span className="font-medium">
             Page {page} of {totalPages || 1}
           </span>
 
           <button
             disabled={page === totalPages || totalPages === 0}
-            className="hover:text-blue-800"
+            className="px-4 py-2 bg-white border rounded disabled:opacity-50"
             onClick={() => setPage(page + 1)}
           >
             Next
