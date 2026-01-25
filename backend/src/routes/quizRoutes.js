@@ -32,13 +32,14 @@ router.get("/categories", async (req, res) => {
 // --- 2. FETCH RANDOM UNUSED QUESTIONS ---
 router.post("/fetch", async (req, res) => {
   try {
-    const { language, subject, topic, subtopic, limit } = req.body;
+    const { language, subject, topic, subtopic, limit, difficulty } = req.body;
     const count = parseInt(limit) || 10;
 
     const matchStage = {
       isUsed: false,
       ...(language && { language }),
-      // If subject is provided, match it. If not, it fetches from ALL subjects
+      ...(difficulty && difficulty !== "Any" && { difficulty }),
+      
       ...(subject && { subject: new RegExp(subject, "i") }),
       ...(topic && { topic: new RegExp(topic, "i") }),
       ...(subtopic && { subtopic: new RegExp(subtopic, "i") }),

@@ -7,6 +7,13 @@ const questionSchema = new mongoose.Schema(
     topic: { type: String, default: "Unknown" },
     subtopic: { type: String, default: "Unknown" },
 
+    difficulty: {
+      type: String,
+      enum: ["Easy", "Medium", "Hard"],
+      default: "Medium",
+      index: true,
+    },
+
     questionText: { type: String, required: true },
 
     options: {

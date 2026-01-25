@@ -16,6 +16,7 @@ const QuizGenerator = () => {
   const [config, setConfig] = useState({
     language: "English",
     limit: 10,
+    difficulty: "Any",
     mode: "mix",
     subject: "",
     topic: "",

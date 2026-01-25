@@ -4,6 +4,7 @@ import AdminLayout from "../components/layout/AdminLayout";
 // Defaults set to empty strings for cleaner UI
 const INITIAL_FORM = {
   language: "English",
+  difficulty: "Medium",
   subject: "",
   topic: "",
   subtopic: "",
@@ -99,19 +100,41 @@ const QuestionUpload = () => {
             <h2 className="text-2xl font-bold">Upload New Question</h2>
           </div>
 
-          {/* Row 1: Language */}
-          <div className="w-full">
-            <select
-              name="language"
-              required
-              value={formData.language}
-              className="input border rounded p-2 w-full md:w-1/3"
-              onChange={handleChange}
-            >
-              <option value="English">English</option>
-              <option value="Hindi">Hindi</option>
-              <option value="Marathi">Marathi</option>
-            </select>
+          {/* Row 1: Language & Difficulty */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-1/2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Language
+              </label>
+              <select
+                name="language"
+                required
+                value={formData.language}
+                className="input border rounded p-2 w-full"
+                onChange={handleChange}
+              >
+                <option value="English">English</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Marathi">Marathi</option>
+              </select>
+            </div>
+
+            <div className="w-full md:w-1/2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Difficulty
+              </label>
+              <select
+                name="difficulty"
+                required
+                value={formData.difficulty}
+                className="input border rounded p-2 w-full"
+                onChange={handleChange}
+              >
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
           </div>
 
           {/* Row 2: Subject Info Grid */}

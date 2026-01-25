@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 
-const QuizFilters = ({ 
-  config, 
-  handleConfigChange, 
-  onSearch, 
-  loading, 
-  error, 
-  dropdownData, // { subjects, topics, subtopics, isLoading }
+const QuizFilters = ({
+  config,
+  handleConfigChange,
+  onSearch,
+  loading,
+  error,
+  dropdownData,
 }) => {
   const { subjects, topics, subtopics, isLoading } = dropdownData;
 
@@ -19,7 +19,9 @@ const QuizFilters = ({
       {/* Language & Count */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Language</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Language
+          </label>
           <select
             name="language"
             className="input border rounded p-2 flex-1 bg-gray-100 text-gray-700 w-full"
@@ -31,8 +33,29 @@ const QuizFilters = ({
             <option>Spanish</option>
           </select>
         </div>
+
+        {/* NEW: Difficulty Dropdown */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">Count</label>
+          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+            Difficulty
+          </label>
+          <select
+            name="difficulty"
+            className="w-full p-2 border rounded bg-gray-50 text-sm"
+            onChange={handleConfigChange}
+            value={config.difficulty || "Any"}
+          >
+            <option value="Any">Any Level</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Count
+          </label>
           <input
             type="number"
             name="limit"
@@ -45,11 +68,15 @@ const QuizFilters = ({
 
       {/* Mode Selection */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Source Mode</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Source Mode
+        </label>
         <div className="flex gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
-              type="radio" name="mode" value="mix"
+              type="radio"
+              name="mode"
+              value="mix"
               checked={config.mode === "mix"}
               onChange={handleConfigChange}
             />
@@ -57,7 +84,9 @@ const QuizFilters = ({
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
-              type="radio" name="mode" value="specific"
+              type="radio"
+              name="mode"
+              value="specific"
               checked={config.mode === "specific"}
               onChange={handleConfigChange}
             />
@@ -70,44 +99,70 @@ const QuizFilters = ({
       {config.mode === "specific" && (
         <div className="space-y-3 bg-gray-50 p-4 rounded border">
           {isLoading ? (
-            <div className="text-sm text-gray-500 text-center py-2">Loading categories...</div>
+            <div className="text-sm text-gray-500 text-center py-2">
+              Loading categories...
+            </div>
           ) : (
             <>
               {/* Subject */}
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Subject</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  Subject
+                </label>
                 <select
-                  name="subject" value={config.subject} onChange={handleConfigChange}
+                  name="subject"
+                  value={config.subject}
+                  onChange={handleConfigChange}
                   className="w-full p-2 border rounded bg-white"
                 >
                   <option value="">-- Select Subject --</option>
-                  {subjects.map((sub) => <option key={sub} value={sub}>{sub}</option>)}
+                  {subjects.map((sub) => (
+                    <option key={sub} value={sub}>
+                      {sub}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               {/* Topic */}
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Topic</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  Topic
+                </label>
                 <select
-                  name="topic" value={config.topic} onChange={handleConfigChange}
+                  name="topic"
+                  value={config.topic}
+                  onChange={handleConfigChange}
                   disabled={!config.subject}
                   className={`w-full p-2 border rounded ${!config.subject ? "bg-gray-200 cursor-not-allowed" : "bg-white"}`}
                 >
                   <option value="">-- Select Topic --</option>
-                  {topics.map((top) => <option key={top} value={top}>{top}</option>)}
+                  {topics.map((top) => (
+                    <option key={top} value={top}>
+                      {top}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               {/* Subtopic */}
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Subtopic</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                  Subtopic
+                </label>
                 <select
-                  name="subtopic" value={config.subtopic} onChange={handleConfigChange}
+                  name="subtopic"
+                  value={config.subtopic}
+                  onChange={handleConfigChange}
                   disabled={!config.topic}
                   className={`w-full p-2 border rounded ${!config.topic ? "bg-gray-200 cursor-not-allowed" : "bg-white"}`}
                 >
                   <option value="">-- Select Subtopic --</option>
-                  {subtopics.map((sub) => <option key={sub} value={sub}>{sub}</option>)}
+                  {subtopics.map((sub) => (
+                    <option key={sub} value={sub}>
+                      {sub}
+                    </option>
+                  ))}
                 </select>
               </div>
             </>

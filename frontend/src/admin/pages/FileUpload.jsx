@@ -32,6 +32,7 @@ const FileUpload = () => {
   const normalizeQuestions = (rows) => {
     return rows.map((row) => ({
       language: row.language || "English",
+      difficulty: row.difficulty || "Medium",
       subject: row.subject || "Unknown",
       topic: row.topic || "Unknown",
       subtopic: row.subtopic || "Unknown",

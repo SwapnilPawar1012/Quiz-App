@@ -6,6 +6,7 @@ const DataTable = () => {
   const [questions, setQuestions] = useState([]);
   const [filters, setFilters] = useState({
     language: "English",
+    difficulty: "",
     subject: "",
     topic: "",
     subtopic: "",
@@ -83,6 +84,13 @@ const DataTable = () => {
     }
   };
 
+  // Helper for Difficulty Color
+  const getDiffColor = (level) => {
+    if (level === "Easy") return "bg-green-100 text-green-800";
+    if (level === "Hard") return "bg-red-100 text-red-800";
+    return "bg-yellow-100 text-yellow-800"; // Medium
+  };
+
   return (
     <>
       <AdminLayout />
@@ -101,6 +109,19 @@ const DataTable = () => {
               <option value="English">English</option>
               <option value="Hindi">Hindi</option>
               <option value="Marathi">Marathi</option>
+            </select>
+
+            {/* NEW DIFFICULTY FILTER */}
+            <select
+              name="difficulty"
+              value={filters.difficulty}
+              className="input border rounded text-black py-1 px-2"
+              onChange={handleChange}
+            >
+              <option value="">All Levels</option>
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
             </select>
 
             <select
@@ -155,7 +176,8 @@ const DataTable = () => {
               <thead className="bg-indigo-50 text-indigo-900">
                 <tr>
                   <th className="p-3 border-b">#</th>
-                  <th className="p-3 border-b">Used?</th>
+                  <th className="p-3 border-b">Status</th>
+                  <th className="p-3 border-b">Diff</th>
                   <th className="p-3 border-b">Lang</th>
                   <th className="p-3 border-b">Subject</th>
                   <th className="p-3 border-b">Topic</th>
@@ -188,6 +210,17 @@ const DataTable = () => {
                         }`}
                       >
                         {q.isUsed ? "USED" : "UNUSED"}
+                      </span>
+                    </td>
+
+                    {/* NEW DIFFICULTY COLUMN */}
+                    <td className="p-3">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${getDiffColor(
+                          q.difficulty || "Medium",
+                        )}`}
+                      >
+                        {q.difficulty || "Medium"}
                       </span>
                     </td>
 
