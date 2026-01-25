@@ -40,6 +40,8 @@ const QuizGenerator = () => {
     optExit: "fade",
     optDuration: 0.5,
     optStagger: 0.2, // Delay between options
+    optionShape: "rounded",
+    borderWidth: "4px",
 
     // Timer
     timerType: "linear", // linear, ease

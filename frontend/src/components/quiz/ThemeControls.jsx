@@ -107,11 +107,79 @@ const ThemeControls = ({ theme, handleThemeChange }) => {
             <option value="serif">Classic Serif</option>
             <option value="'Courier New', monospace">Typewriter</option>
             <option value="cursive">Playful</option>
+            <optgroup label="Modern Sans">
+              <option value="Inter, sans-serif">Inter (Clean)</option>
+              <option value="Roboto, sans-serif">Roboto (Standard)</option>
+              <option value="'Open Sans', sans-serif">
+                Open Sans (Friendly)
+              </option>
+              <option value="Montserrat, sans-serif">Montserrat (Wide)</option>
+              <option value="Oswald, sans-serif">Oswald (Tall/Bold)</option>
+            </optgroup>
+            <optgroup label="Classic Serif">
+              <option value="Merriweather, serif">
+                Merriweather (Elegant)
+              </option>
+              <option value="'Playfair Display', serif">
+                Playfair Display (Fancy)
+              </option>
+              <option value="Lora, serif">Lora (Readable)</option>
+            </optgroup>
+            <optgroup label="Fun & Display">
+              <option value="'Comic Neue', cursive">Comic Neue (Casual)</option>
+              <option value="Poppins, sans-serif">Poppins (Rounded)</option>
+              <option value="'Courier New', monospace">
+                Typewriter (Retro)
+              </option>
+            </optgroup>
           </select>
         </div>
       </div>
 
-      {/* --- 2. ANIMATION STUDIO --- */}
+      {/* --- 2. OPTION BOX STYLING (New Section) --- */}
+      <div className="mt-6 mb-6 pt-4 border-t">
+        <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+          <span>🔲</span> Box Design
+        </h3>
+        <div className="grid grid-cols-2 gap-4">
+          {/* SHAPE SELECTOR */}
+          <div>
+            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">
+              Shape
+            </label>
+            <select
+              name="optionShape"
+              value={theme.optionShape || "rounded"}
+              onChange={handleThemeChange}
+              className="w-full p-2 border rounded bg-gray-50 text-sm"
+            >
+              <option value="rounded">Standard (Rounded)</option>
+              <option value="pill">Pill / Capsule</option>
+              <option value="rect">Sharp (Rectangle)</option>
+              <option value="modern">Super Rounded (Modern)</option>
+            </select>
+          </div>
+          {/* BORDER WIDTH SELECTOR */}
+          <div>
+            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">
+              Border Width
+            </label>
+            <select
+              name="borderWidth"
+              value={theme.borderWidth || "4px"}
+              onChange={handleThemeChange}
+              className="w-full p-2 border rounded bg-gray-50 text-sm"
+            >
+              <option value="0px">None</option>
+              <option value="2px">Thin (2px)</option>
+              <option value="4px">Standard (4px)</option>
+              <option value="8px">Thick (8px)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* --- ANIMATION STUDIO --- */}
       <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
         <span>🎬</span> Animation Studio
       </h3>

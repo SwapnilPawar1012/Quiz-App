@@ -97,6 +97,21 @@ const resolveExitType = (enterType, exitType) => {
   }
 };
 
+// HELPER: Get Border Radius based on Shape Name
+const getBorderRadius = (shape) => {
+  switch (shape) {
+    case "pill":
+      return "9999px"; // Fully rounded ends
+    case "rect":
+      return "0px"; // Sharp corners
+    case "modern":
+      return "32px"; // Deeply rounded
+    case "rounded":
+    default:
+      return "16px"; // Standard
+  }
+};
+
 // --- QUESTION SLIDE COMPONENT ---
 const QuestionSlide = ({
   question,
@@ -120,7 +135,6 @@ const QuestionSlide = ({
   const isTimeUp = frame > questionSec + timerSec;
 
   // shouldReveal: Determines if we show the answer.
-  // CRITICAL FIX: If isHomework is true, this is ALWAYS false.
   const shouldReveal = isTimeUp && !isHomework;
 
   // --- 1. QUESTION ANIMATION ---
@@ -207,6 +221,10 @@ const QuestionSlide = ({
   const finalExplainStyle =
     frame > explainExitStart ? explainExit : explainEnter;
 
+  // GET DYNAMIC STYLES
+  const borderRadius = getBorderRadius(theme.optionShape);
+  const borderThickness = theme.borderWidth || "4px";
+
   return (
     <AbsoluteFill
       style={{
@@ -278,8 +296,13 @@ const QuestionSlide = ({
                 borderColor: borderColor,
                 color: textColor,
                 opacity: animStyle.opacity * opacityMod,
+
+                // --- NEW DYNAMIC STYLES ---
+                borderRadius: borderRadius,
+                borderWidth: borderThickness,
               }}
             >
+              {/* Option Letter Bubble */}
               <div
                 className="shrink-0 w-14 h-14 flex items-center justify-center rounded-full text-2xl font-black mr-5 border-4"
                 style={{ borderColor: "currentColor", opacity: 0.8 }}
@@ -313,19 +336,35 @@ const QuestionSlide = ({
           <div className="bg-green-500/20 p-4 rounded-xl border border-green-500/50">
             <span className="text-4xl">💡</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-yellow-400 font-black text-3xl mb-1 tracking-wider">
-              Correct Answer:{" "}
-              {String.fromCharCode(65 + question.correctOptionIndex)}
-            </span>
-            <span className="text-green-400 font-bold text-3xl uppercase tracking-widest mb-1">
-              Explanation
-            </span>
-            <p className="text-3xl font-medium leading-snug text-white">
-              {question.solutionExplanation ||
-                question.solutionText ||
-                "No explanation provided."}
-            </p>
+          <div className="flex flex-col flex-1">
+            {/* CORRECT ANSWER HEADER */}
+            <div className="mb-3 border-b border-gray-700 pb-2">
+              <span className="text-gray-400 font-bold text-sm uppercase tracking-wider block mb-1">
+                Correct Answer
+              </span>
+              <div className="flex items-center gap-3">
+                {/* Option Letter Bubble */}
+                <span className="bg-yellow-500 text-black font-black px-3 py-1 rounded text-xl">
+                  {String.fromCharCode(65 + question.correctOptionIndex)}
+                </span>
+                {/* Option Text */}
+                <span className="text-yellow-400 font-bold text-2xl leading-none">
+                  {question.options[question.correctOptionIndex]}
+                </span>
+              </div>
+            </div>
+
+            {/* EXPLANATION TEXT */}
+            <div>
+              <span className="text-green-400 font-bold text-sm uppercase tracking-wider block mb-1">
+                Why?
+              </span>
+              <p className="text-2xl text-white font-medium leading-snug opacity-90">
+                {question.solutionExplanation ||
+                  question.solutionText ||
+                  "No explanation provided."}
+              </p>
+            </div>
           </div>
         </div>
       )}
