@@ -6,6 +6,7 @@ import FileUpload from "../admin/pages/FileUpload";
 import DataTable from "../admin/pages/DataTable";
 import EditQuestion from "../admin/components/common/EditQuestion";
 import Videos from "../pages/Videos";
+import QuizGenerator from "../pages/QuizGenerator";
 
 const AppRoutes = () => {
   return (
@@ -21,7 +22,7 @@ const AppRoutes = () => {
 
       {/* Quiz and Video Routes */}
       <Route path="/videos" element={<Videos />} />
-      <Route path="/create" element={<Home />} />
+      <Route path="/quiz-generator" element={<QuizGenerator />} />
     </Routes>
   );
 };

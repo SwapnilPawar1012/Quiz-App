@@ -1,6 +1,6 @@
 import React from "react";
 import AppRoutes from "./routes/AppRoutes";
-import Navbar from "./components/layout/navbar";
+import Navbar from "./components/layout/Navbar";
 import "./styles/custom.css";
 
 const App = () => {

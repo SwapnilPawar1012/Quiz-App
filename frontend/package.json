@@ -10,11 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@remotion/player": "^4.0.409",
     "@tailwindcss/vite": "^4.1.18",
+    "axios": "^1.13.2",
     "papaparse": "^5.5.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.12.0",
+    "remotion": "^4.0.409",
     "tailwindcss": "^4.1.18",
     "xlsx": "^0.18.5"
   },

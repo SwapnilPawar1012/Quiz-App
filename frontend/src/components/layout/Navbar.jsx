@@ -9,8 +9,8 @@ const Navbar = () => {
       <Link to="/admin" className="hover:text-indigo-900 text-xl font-bold">
         Admin
       </Link>
-      <Link to="/create" className="hover:text-indigo-900 text-xl font-bold">
-        Quiz
+      <Link to="/quiz-generator" className="hover:text-indigo-900 text-xl font-bold">
+        Quiz Generator
       </Link>
       <Link to="/videos" className="hover:text-indigo-900 text-xl font-bold">
         Videos

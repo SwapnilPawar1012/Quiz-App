@@ -4,6 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import questionRoutes from "./routes/questionRoutes.js";
+import quizRoutes from "./routes/quizRoutes.js";
+
 import ensureUploadDirs from "./utils/ensureUploadDirs.js";
 
 dotenv.config();
@@ -18,7 +20,12 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.use("/uploads", express.static("uploads"));
+
+// This handles Admin Uploads
 app.use("/api/admin/questions", questionRoutes);
+
+// This handles Quiz Generation
+app.use("/api/quiz", quizRoutes);
 
 // Connect to MongoDB Atlas using _MAIN
 mongoose
