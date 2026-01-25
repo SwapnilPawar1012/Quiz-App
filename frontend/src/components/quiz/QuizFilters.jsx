@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const QuizFilters = ({
   config,
@@ -9,175 +9,230 @@ const QuizFilters = ({
   dropdownData,
 }) => {
   const { subjects, topics, subtopics, isLoading } = dropdownData;
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow border border-gray-200">
-      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <span>⚙️</span> Quiz Configuration
-      </h2>
-
-      {/* Language & Count */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Language
-          </label>
-          <select
-            name="language"
-            className="input border rounded p-2 flex-1 bg-gray-100 text-gray-700 w-full"
-            onChange={handleConfigChange}
-            value={config.language}
-          >
-            <option>English</option>
-            <option>Hindi</option>
-            <option>Spanish</option>
-          </select>
+    <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/40 border border-slate-200/60 overflow-hidden">
+      {/* --- HEADER (Collapsible) --- */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-slate-50/50 backdrop-blur px-4 py-3 border-b border-slate-100 flex items-center justify-between hover:bg-slate-50 transition-colors group"
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+          <h2 className="text-xs font-black text-slate-800 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">
+            Data Source
+          </h2>
         </div>
+        <span
+          className={`text-slate-400 text-[10px] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+        >
+          ▼
+        </span>
+      </button>
 
-        {/* NEW: Difficulty Dropdown */}
-        <div>
-          <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
-            Difficulty
-          </label>
-          <select
-            name="difficulty"
-            className="w-full p-2 border rounded bg-gray-50 text-sm"
-            onChange={handleConfigChange}
-            value={config.difficulty || "Any"}
-          >
-            <option value="Any">Any Level</option>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Count
-          </label>
-          <input
-            type="number"
-            name="limit"
-            value={config.limit}
-            onChange={handleConfigChange}
-            className="input border rounded p-2 flex-1 bg-gray-100 text-gray-700 w-full"
-          />
-        </div>
-      </div>
-
-      {/* Mode Selection */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Source Mode
-        </label>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="mode"
-              value="mix"
-              checked={config.mode === "mix"}
-              onChange={handleConfigChange}
-            />
-            <span className="font-medium text-black">Mix (All Subjects)</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="mode"
-              value="specific"
-              checked={config.mode === "specific"}
-              onChange={handleConfigChange}
-            />
-            <span className="font-medium">Specific Category</span>
-          </label>
-        </div>
-      </div>
-
-      {/* Conditional Dropdowns */}
-      {config.mode === "specific" && (
-        <div className="space-y-3 bg-gray-50 p-4 rounded border">
-          {isLoading ? (
-            <div className="text-sm text-gray-500 text-center py-2">
-              Loading categories...
+      {/* --- BODY --- */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"}`}
+      >
+        <div className="p-5 space-y-5">
+          {/* Row 1: Language & Limit */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">
+                Language
+              </label>
+              <div className="relative">
+                <select
+                  name="language"
+                  value={config.language}
+                  onChange={handleConfigChange}
+                  className="w-full text-xs py-2 pl-2 pr-6 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 font-medium text-slate-700 appearance-none cursor-pointer hover:border-emerald-200 transition-colors"
+                >
+                  <option>English</option>
+                  <option>Hindi</option>
+                  <option>Marathi</option>
+                </select>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[10px]">
+                  ▼
+                </div>
+              </div>
             </div>
-          ) : (
-            <>
-              {/* Subject */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
-                  Subject
-                </label>
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">
+                Count
+              </label>
+              <input
+                type="number"
+                name="limit"
+                value={config.limit}
+                onChange={handleConfigChange}
+                className="w-full text-xs py-2 px-3 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 font-medium text-slate-700 hover:border-emerald-200 transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Difficulty Pills */}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">
+              Difficulty Level
+            </label>
+            <div className="flex bg-slate-100 p-1 rounded-lg">
+              {["Any", "Easy", "Medium", "Hard"].map((level) => (
+                <button
+                  key={level}
+                  onClick={() =>
+                    handleConfigChange({
+                      target: { name: "difficulty", value: level },
+                    })
+                  }
+                  className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all duration-200 ${
+                    config.difficulty === level
+                      ? "bg-white text-emerald-600 shadow-sm ring-1 ring-black/5"
+                      : "text-slate-400 hover:text-slate-600 hover:bg-slate-200/50"
+                  }`}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Row 3: Mode Selection (Tabs) */}
+          <div>
+            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">
+              Selection Mode
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label
+                className={`cursor-pointer flex flex-col items-center justify-center py-3 rounded-xl border transition-all duration-200 ${
+                  config.mode === "mix"
+                    ? "bg-emerald-50/50 border-emerald-200 shadow-sm"
+                    : "bg-slate-50 border-transparent hover:bg-slate-100"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="mode"
+                  value="mix"
+                  checked={config.mode === "mix"}
+                  onChange={handleConfigChange}
+                  className="hidden"
+                />
+                <span className="text-lg mb-1">🎲</span>
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-wide ${config.mode === "mix" ? "text-emerald-700" : "text-slate-400"}`}
+                >
+                  Random Mix
+                </span>
+              </label>
+
+              <label
+                className={`cursor-pointer flex flex-col items-center justify-center py-3 rounded-xl border transition-all duration-200 ${
+                  config.mode === "specific"
+                    ? "bg-emerald-50/50 border-emerald-200 shadow-sm"
+                    : "bg-slate-50 border-transparent hover:bg-slate-100"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="mode"
+                  value="specific"
+                  checked={config.mode === "specific"}
+                  onChange={handleConfigChange}
+                  className="hidden"
+                />
+                <span className="text-lg mb-1">🎯</span>
+                <span
+                  className={`text-[10px] font-bold uppercase tracking-wide ${config.mode === "specific" ? "text-emerald-700" : "text-slate-400"}`}
+                >
+                  Specific
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* Row 4: Specific Selectors (Animated Entrance) */}
+          {config.mode === "specific" && (
+            <div className="space-y-3 p-3 bg-white rounded-xl border border-emerald-100 shadow-sm animate-in slide-in-from-top-2 fade-in duration-300">
+              <div className="relative">
                 <select
                   name="subject"
                   value={config.subject}
                   onChange={handleConfigChange}
-                  className="w-full p-2 border rounded bg-white"
+                  className="w-full text-xs py-2 pl-2 pr-6 bg-emerald-50/30 border border-emerald-100 rounded-lg text-slate-700 font-medium appearance-none outline-none focus:border-emerald-300"
                 >
                   <option value="">-- Select Subject --</option>
-                  {subjects.map((sub) => (
-                    <option key={sub} value={sub}>
-                      {sub}
+                  {subjects.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
                     </option>
                   ))}
                 </select>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-400 text-[10px]">
+                  ▼
+                </div>
               </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="relative">
+                  <select
+                    name="topic"
+                    value={config.topic}
+                    onChange={handleConfigChange}
+                    disabled={!config.subject}
+                    className="w-full text-xs py-2 pl-2 pr-6 bg-slate-50 border border-slate-200 rounded-lg disabled:opacity-50 disabled:bg-slate-50 appearance-none outline-none focus:border-emerald-300"
+                  >
+                    <option value="">-- Topic --</option>
+                    {topics.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="relative">
+                  <select
+                    name="subtopic"
+                    value={config.subtopic}
+                    onChange={handleConfigChange}
+                    disabled={!config.topic}
+                    className="w-full text-xs py-2 pl-2 pr-6 bg-slate-50 border border-slate-200 rounded-lg disabled:opacity-50 disabled:bg-slate-50 appearance-none outline-none focus:border-emerald-300"
+                  >
+                    <option value="">-- Subtopic --</option>
+                    {subtopics.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
-              {/* Topic */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
-                  Topic
-                </label>
-                <select
-                  name="topic"
-                  value={config.topic}
-                  onChange={handleConfigChange}
-                  disabled={!config.subject}
-                  className={`w-full p-2 border rounded ${!config.subject ? "bg-gray-200 cursor-not-allowed" : "bg-white"}`}
-                >
-                  <option value="">-- Select Topic --</option>
-                  {topics.map((top) => (
-                    <option key={top} value={top}>
-                      {top}
-                    </option>
-                  ))}
-                </select>
-              </div>
+          {/* Action Button */}
+          <button
+            onClick={onSearch}
+            disabled={loading}
+            className="w-full group relative overflow-hidden bg-slate-900 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-emerald-600 transition-all shadow-lg shadow-slate-300 hover:shadow-emerald-200 active:scale-[0.98]"
+          >
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              {loading ? (
+                <span className="animate-spin">⏳</span>
+              ) : (
+                <span>🔍</span>
+              )}
+              {loading ? "Fetching Data..." : "Find Questions"}
+            </span>
+          </button>
 
-              {/* Subtopic */}
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
-                  Subtopic
-                </label>
-                <select
-                  name="subtopic"
-                  value={config.subtopic}
-                  onChange={handleConfigChange}
-                  disabled={!config.topic}
-                  className={`w-full p-2 border rounded ${!config.topic ? "bg-gray-200 cursor-not-allowed" : "bg-white"}`}
-                >
-                  <option value="">-- Select Subtopic --</option>
-                  {subtopics.map((sub) => (
-                    <option key={sub} value={sub}>
-                      {sub}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </>
+          {error && (
+            <div className="text-[10px] text-red-500 bg-red-50 p-3 rounded-lg border border-red-100 text-center font-medium animate-in shake">
+              ⚠️ {error}
+            </div>
           )}
         </div>
-      )}
-
-      <button
-        onClick={onSearch}
-        disabled={loading}
-        className="w-full mt-4 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-bold transition"
-      >
-        {loading ? "Searching..." : "Preview Questions"}
-      </button>
-      {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
+      </div>
     </div>
   );
 };
