@@ -101,10 +101,14 @@ const QuizGenerator = () => {
   const fetchQuestions = async () => {
     setLoading(true);
     setError("");
+
+    // REQUEST ONE EXTRA QUESTION FOR HOMEWORK
+    const requestedLimit = parseInt(config.limit) + 1;
+
     // Ensure we handle "All Subjects" mode correctly
     const payload = {
       language: config.language,
-      limit: config.limit,
+      limit: requestedLimit,
       subject: config.mode === "specific" ? config.subject : undefined,
       topic: config.mode === "specific" ? config.topic : undefined,
       subtopic: config.mode === "specific" ? config.subtopic : undefined,
@@ -145,13 +149,24 @@ const QuizGenerator = () => {
 
   // Finalize: Send to DB
   const handleFinalize = async () => {
-    if (!window.confirm("Mark questions as used? This cannot be undone."))
+    if (
+      !window.confirm(
+        "Mark main questions as used? (Homework question remains unused)",
+      )
+    )
       return;
-    const questionIds = questions.map((q) => q._id);
+
+    // EXCLUDE THE LAST QUESTION (Homework)
+    const mainQuestions = questions.slice(0, -1);
+    const questionIds = mainQuestions.map((q) => q._id);
+
     await axios.post("http://localhost:5000/api/quiz/mark-used", {
       questionIds,
     });
-    alert("Success! Questions marked as used.");
+
+    alert(
+      `Success! ${questionIds.length} questions marked used. 1 Homework question kept unused.`,
+    );
     setQuestions([]);
     setShowPlayer(false);
   };
