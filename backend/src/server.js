@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 
 import questionRoutes from "./routes/questionRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
+import renderRoutes from "./routes/renderRoutes.js";
 
 import ensureUploadDirs from "./utils/ensureUploadDirs.js";
 
@@ -26,6 +27,8 @@ app.use("/api/admin/questions", questionRoutes);
 
 // This handles Quiz Generation
 app.use("/api/quiz", quizRoutes);
+
+app.use("/api/video", renderRoutes);
 
 // Connect to MongoDB Atlas using _MAIN
 mongoose

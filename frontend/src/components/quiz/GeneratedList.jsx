@@ -4,7 +4,7 @@ const GeneratedList = ({ questions, onPreview, onFinalize, showPlayer }) => {
   if (questions.length === 0) return null;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow border">
+    <div className="bg-white text-black p-6 rounded-lg shadow border">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-bold text-lg">
           Found {questions.length} Questions

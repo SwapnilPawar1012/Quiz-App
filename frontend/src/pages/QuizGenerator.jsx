@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 
-// Import components
+// Components
 import QuizFilters from "../components/quiz/QuizFilters";
 import ThemeControls from "../components/quiz/ThemeControls";
 import VideoPreview from "../components/quiz/VideoPreview";
@@ -10,7 +10,7 @@ import TimingControls from "../components/quiz/TimingControls";
 import RemotionPlayerWrapper from "../components/quiz/RemotionPlayerWrapper";
 
 const QuizGenerator = () => {
-  // --- STATE ---
+  // ---------------- STATE ----------------
   const [config, setConfig] = useState({
     language: "English",
     limit: 10,
@@ -42,7 +42,6 @@ const QuizGenerator = () => {
     explainDuration: 0.5,
   });
 
-  // TIMING STATE (In Seconds)
   const [timings, setTimings] = useState({
     questionDuration: 3.5,
     timerDuration: 8,
@@ -50,13 +49,16 @@ const QuizGenerator = () => {
   });
 
   const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [allCategories, setAllCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [isLoadingCats, setIsLoadingCats] = useState(false);
+  const [error, setError] = useState("");
   const [showPlayer, setShowPlayer] = useState(false);
 
-  // --- API CALLS ---
+  // 🔥 REQUIRED STATE (WAS MISSING)
+  const [isRendering, setIsRendering] = useState(false);
+
+  // ---------------- API ----------------
   useEffect(() => {
     const fetchCategories = async () => {
       setIsLoadingCats(true);
@@ -66,7 +68,7 @@ const QuizGenerator = () => {
         );
         if (Array.isArray(res.data)) setAllCategories(res.data);
       } catch (err) {
-        console.error("Failed to load categories:", err);
+        console.error(err);
       } finally {
         setIsLoadingCats(false);
       }
@@ -78,11 +80,10 @@ const QuizGenerator = () => {
     setLoading(true);
     setError("");
     setShowPlayer(false);
-    const requestedLimit = parseInt(config.limit) + 1;
 
     const payload = {
       language: config.language,
-      limit: requestedLimit,
+      limit: Number(config.limit) + 1,
       difficulty: config.difficulty === "Any" ? undefined : config.difficulty,
       subject: config.mode === "specific" ? config.subject : undefined,
       topic: config.mode === "specific" ? config.topic : undefined,
@@ -94,9 +95,8 @@ const QuizGenerator = () => {
         "http://localhost:5000/api/quiz/fetch",
         payload,
       );
-      if (res.data.length === 0) setError("No unused questions found.");
-      setQuestions(res.data);
-    } catch (err) {
+      setQuestions(res.data || []);
+    } catch {
       setError("Failed to fetch questions.");
     } finally {
       setLoading(false);
@@ -105,103 +105,97 @@ const QuizGenerator = () => {
 
   const handleFinalize = async () => {
     if (!window.confirm("Mark main questions as used?")) return;
-    const mainQuestions = questions.slice(0, -1);
-    const questionIds = mainQuestions.map((q) => q._id);
+
+    const ids = questions.slice(0, -1).map((q) => q._id);
     await axios.post("http://localhost:5000/api/quiz/mark-used", {
-      questionIds,
+      questionIds: ids,
     });
-    alert(`Success! ${questionIds.length} questions marked used.`);
+
+    alert("Questions marked as used.");
     setQuestions([]);
     setShowPlayer(false);
   };
 
+  // ---------------- SAVE TO LAPTOP ----------------
+  const handleSaveToLaptop = async () => {
+    if (!questions.length) {
+      alert("No questions to render.");
+      return;
+    }
+
+    if (!window.confirm("Save video to laptop?")) return;
+
+    setIsRendering(true);
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/video/render", {
+        questions,
+        theme,
+        timings,
+        config,
+      });
+
+      alert(`✅ Video saved successfully!\n\n${res.data.savedAt}`);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Render failed. Check backend logs.");
+    } finally {
+      setIsRendering(false);
+    }
+  };
+
+  // ---------------- HELPERS ----------------
   const handleConfigChange = (e) => {
     const { name, value } = e.target;
-    if (name === "subject")
-      setConfig((prev) => ({
-        ...prev,
-        subject: value,
-        topic: "",
-        subtopic: "",
-      }));
-    else if (name === "topic")
-      setConfig((prev) => ({ ...prev, topic: value, subtopic: "" }));
-    else setConfig((prev) => ({ ...prev, [name]: value }));
+    setConfig((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleThemeChange = (e) =>
     setTheme({ ...theme, [e.target.name]: e.target.value });
 
-  // --- MEMOS ---
   const dropdownData = useMemo(() => {
-    if (!allCategories || allCategories.length === 0)
-      return {
-        subjects: [],
-        topics: [],
-        subtopics: [],
-        isLoading: isLoadingCats,
-      };
-    const subjects = [
-      ...new Set(allCategories.map((c) => c.subject).filter((s) => s)),
-    ];
-    const topics = config.subject
-      ? [
-          ...new Set(
-            allCategories
-              .filter((c) => c.subject === config.subject)
-              .map((c) => c.topic)
-              .filter((t) => t),
-          ),
-        ]
-      : [];
-    const subtopics =
-      config.subject && config.topic
-        ? [
-            ...new Set(
-              allCategories
-                .filter(
-                  (c) =>
-                    c.subject === config.subject && c.topic === config.topic,
-                )
-                .map((c) => c.subtopic)
-                .filter((s) => s),
-            ),
-          ]
-        : [];
-    return { subjects, topics, subtopics, isLoading: isLoadingCats };
+    const subjects = [...new Set(allCategories.map((c) => c.subject))];
+    const topics = allCategories
+      .filter((c) => c.subject === config.subject)
+      .map((c) => c.topic);
+    const subtopics = allCategories
+      .filter((c) => c.subject === config.subject && c.topic === config.topic)
+      .map((c) => c.subtopic);
+
+    return {
+      subjects,
+      topics,
+      subtopics,
+      isLoading: isLoadingCats,
+    };
   }, [allCategories, config.subject, config.topic, isLoadingCats]);
 
   const FPS = 30;
-  const totalFrames = Math.max(
-    1,
+  const totalFrames =
     questions.length *
-      ((timings.questionDuration +
-        timings.timerDuration +
-        timings.explanationDuration) *
-        FPS),
-  );
+    (timings.questionDuration +
+      timings.timerDuration +
+      timings.explanationDuration) *
+    FPS;
 
-  // --- RENDER ---
+  // ---------------- UI ----------------
   return (
-    <div className="min-h-screen bg-slate-50 w-full text-slate-800 font-sans pb-20">
-      {/* MAIN CONTENT CONTAINER */}
+    <div className="min-h-screen bg-slate-50 pb-20">
       <div className="max-w-[1800px] mx-auto p-6">
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-          {/* --- LEFT: VISUAL CONTROLS (Narrow) --- */}
-          <div className="xl:col-span-3 space-y-4 xl:sticky xl:top-24 z-30">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          {/* LEFT */}
+          <div className="xl:col-span-3 space-y-4">
             <ThemeControls
               theme={theme}
               handleThemeChange={handleThemeChange}
             />
           </div>
 
-          {/* --- CENTER: WORKSPACE (Wide) --- */}
+          {/* CENTER */}
           <div className="xl:col-span-6 space-y-6">
-            {/* Player Card */}
-            <div className="bg-white p-3 rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-100 relative">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-200 rounded-b-xl z-20 opacity-50"></div>
-              <div className="aspect-video bg-slate-900 rounded-[1.5rem] overflow-hidden relative isolate ring-1 ring-black/5">
-                {showPlayer && questions.length > 0 ? (
+            <div className="bg-white p-4 rounded-2xl shadow-xl">
+              <div className="aspect-video bg-slate-900 rounded-xl overflow-hidden">
+                {showPlayer ? (
                   <RemotionPlayerWrapper
                     questions={questions}
                     theme={theme}
@@ -216,33 +210,32 @@ const QuizGenerator = () => {
                   />
                 )}
               </div>
+
+              {questions.length > 0 && (
+                <div className="flex justify-center mt-6">
+                  <button
+                    onClick={handleSaveToLaptop}
+                    disabled={isRendering}
+                    className="px-8 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {isRendering ? "Rendering..." : "💾 Save Video to Laptop"}
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Generated List (Animated Entry) */}
             {questions.length > 0 && (
-              <div className="animate-in slide-in-from-bottom-4 duration-500 delay-100">
-                {showPlayer && (
-                  <div className="text-center mb-6">
-                    <button
-                      onClick={() => setShowPlayer(false)}
-                      className="px-6 py-2 bg-white border border-slate-200 text-slate-500 text-xs font-bold rounded-full hover:bg-slate-50 hover:text-slate-800 transition-all shadow-sm"
-                    >
-                      Exit Preview Mode
-                    </button>
-                  </div>
-                )}
-                <GeneratedList
-                  questions={questions}
-                  onPreview={() => setShowPlayer(true)}
-                  onFinalize={handleFinalize}
-                  showPlayer={showPlayer}
-                />
-              </div>
+              <GeneratedList
+                questions={questions}
+                onPreview={() => setShowPlayer(true)}
+                onFinalize={handleFinalize}
+                showPlayer={showPlayer}
+              />
             )}
           </div>
 
-          {/* --- RIGHT: DATA CONTROLS (Narrow) --- */}
-          <div className="xl:col-span-3 space-y-4 xl:sticky xl:top-24 z-30">
+          {/* RIGHT */}
+          <div className="xl:col-span-3 space-y-4 text-black">
             <QuizFilters
               config={config}
               handleConfigChange={handleConfigChange}
